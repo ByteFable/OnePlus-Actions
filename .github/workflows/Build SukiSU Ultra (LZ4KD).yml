@@ -1,9 +1,9 @@
-name: Build OnePlus SukiSU Ultra (LZ4KD)
+name: Build OnePlus SukiSU Ultra With LZ4KD
 on:
   workflow_dispatch:
     inputs:
       CPU:
-        description: "CPU"
+        description: "CPU分支"
         required: true
         type: choice
         options:
@@ -19,10 +19,13 @@ on:
         type: choice
         options:
           - 'oneplus12_v'
+          - 'oneplus12_u'
           - 'oneplus_ace3_pro_v'
           - 'oneplus_ace5'
           - 'oneplus_pad2_v'
           - 'oneplus_11_v'
+          - 'oneplus_11_u'
+          - 'oneplus_11_t'
           - 'oneplus_12r_v'
           - 'oneplus_ace2pro_v'
           - 'oneplus_ace3_v'
@@ -33,6 +36,7 @@ on:
           - 'oneplus_ace_pro_v'
           - 'oneplus_10_pro_v'
           - 'oneplus_ace_3v_v'
+          - ' '
         default: 'oneplus12_v'
       CPUD:
         description: "处理器代号"
@@ -61,7 +65,6 @@ on:
           - '5.15'
           - '5.10'
         default: '6.1'
-
 jobs:
   build:
     name: For ${{ github.event.inputs.FEIL }}
@@ -133,7 +136,7 @@ jobs:
           cp ../kernel_patches/next/syscall_hooks.patch ./common/
           cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
           cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
-          # Copy lz4k
+          # Copy lz4k from ShirkNeko
           cp -r ../SukiSU_patch/other/zram/lz4k/include/linux/* ./common/include/linux
           cp -r ../SukiSU_patch/other/zram/lz4k/lib/* ./common/lib
           cp -r ../SukiSU_patch/other/zram/lz4k/crypto/* ./common/crypto
@@ -247,9 +250,19 @@ jobs:
         with:
          name: AnyKernel3_SukiSU_Ultra_lz4kd_${{ env.KSUVER }}_${{ github.event.inputs.FEIL }}
          path: ./AnyKernel3/*
-         
+          
       - name: Upload Image
         uses: actions/upload-artifact@v4
         with:
          name: Image_KernelSU_${{ env.KSUVER }}_${{ github.event.inputs.FEIL }}
          path: kernel_workspace/kernel
+         
+      - name: Find zram.ko
+        run: |
+          find -name *.ko
+          
+      - name: Upload zram.ko
+        uses: actions/upload-artifact@v4
+        with:
+          name: zram.ko
+          path: kernel_workspace/kernel_platform/dist/zram.ko
